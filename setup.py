@@ -778,7 +778,7 @@ class pyside_build(_build):
         log.info("Building patchelf...")
         module_src_dir = os.path.join(self.sources_dir, "patchelf")
         build_cmd = [
-            "g++",
+            os.environ.get('CXX', 'g++'),
             "%s/patchelf.cc" % (module_src_dir),
             "-o",
             "patchelf",
