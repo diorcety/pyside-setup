@@ -225,21 +225,23 @@ def prepare_packages_win32(self, vars):
                 pyside_rcc_options = ['-g', 'python']
                 regenerate_qt_resources(examples_path, pyside_rcc_path, pyside_rcc_options)
 
-        if vars['ssl_libs_dir']:
-            # <ssl_libs>/* -> <setup>/{st_package_name}/openssl
-            copydir("{ssl_libs_dir}", "{st_build_dir}/{st_package_name}/openssl",
-                    filter=[
-                        "libeay32.dll",
-                        "ssleay32.dll"],
-                    force=False, vars=vars)
+        if OPTION["STANDALONE"]:
+            if vars['ssl_libs_dir']:
+                # <ssl_libs>/* -> <setup>/{st_package_name}/openssl
+                copydir("{ssl_libs_dir}", "{st_build_dir}/{st_package_name}/openssl",
+                        filter=[
+                            "libeay32.dll",
+                            "ssleay32.dll"],
+                        force=False, vars=vars)
 
-    if config.is_internal_shiboken_module_build():
-        # The C++ std library dlls need to be packaged with the
-        # shiboken module, because libshiboken uses C++ code.
-        copy_msvc_redist_files(vars, "{build_dir}/msvc_redist".format(**vars))
+    if OPTION["STANDALONE"]:
+        if config.is_internal_shiboken_module_build():
+            # The C++ std library dlls need to be packaged with the
+            # shiboken module, because libshiboken uses C++ code.
+            copy_msvc_redist_files(vars, "{build_dir}/msvc_redist".format(**vars))
 
-    if config.is_internal_pyside_build() or config.is_internal_shiboken_generator_build():
-        copy_qt_artifacts(self, copy_pdbs, vars)
+        if config.is_internal_pyside_build() or config.is_internal_shiboken_generator_build():
+            copy_qt_artifacts(self, copy_pdbs, vars)
 
 
 def copy_msvc_redist_files(vars, redist_target_path):
