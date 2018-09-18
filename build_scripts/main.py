@@ -871,7 +871,7 @@ class PysideBuild(_build):
             return
         log.info("Building patchelf...")
         module_src_dir = os.path.join(self.sources_dir, "patchelf")
-        build_cmd = ["g++", "{}/patchelf.cc".format(module_src_dir), "-o", "patchelf"]
+        build_cmd = [os.environ.get('CXX', 'g++'), "{}/patchelf.cc".format(module_src_dir), "-o", "patchelf"]
         if run_process(build_cmd) != 0:
             raise DistutilsSetupError("Error building patchelf")
         self._patchelf_path = os.path.join(self.script_dir, "patchelf")
