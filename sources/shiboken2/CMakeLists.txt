@@ -67,7 +67,11 @@ compute_config_py_values(shiboken2_VERSION)
 
 ## For debugging the PYTHON* variables
 message("PYTHONLIBS_FOUND: " ${PYTHONLIBS_FOUND})
-message("PYTHON_LIBRARIES: " ${PYTHON_LIBRARIES})
+if(PYTHONLIBS_FOUND)
+    message("PYTHON_LIBRARIES: " ${PYTHON_LIBRARIES})
+else()
+    set(PYTHON_LIBRARIES )
+endif()
 message("PYTHON_INCLUDE_DIRS: " ${PYTHON_INCLUDE_DIRS})
 message("PYTHON_DEBUG_LIBRARIES: " ${PYTHON_DEBUG_LIBRARIES})
 message("PYTHONINTERP_FOUND: " ${PYTHONINTERP_FOUND})
