@@ -44,133 +44,7 @@ from ..utils import copydir, copyfile, rmtree, makefile
 from ..utils import regenerate_qt_resources, filter_match
 from ..utils import download_and_extract_7z
 
-def prepare_packages_win32(self, vars):
-    # For now, debug symbols will not be shipped into the package.
-    copy_pdbs = False
-    pdbs = []
-    if (self.debug or self.build_type == 'RelWithDebInfo') and copy_pdbs:
-        pdbs = ['*.pdb']
-    # <install>/lib/site-packages/PySide2/* -> <setup>/PySide2
-    copydir(
-        "{site_packages_dir}/PySide2",
-        "{pyside_package_dir}/PySide2",
-        vars=vars)
-    built_modules = self.get_built_pyside_config(vars)['built_modules']
-
-    # <build>/pyside2/PySide2/*.pdb -> <setup>/PySide2
-    copydir(
-        "{build_dir}/pyside2/PySide2",
-        "{pyside_package_dir}/PySide2",
-        filter=pdbs,
-        recursive=False, vars=vars)
-
-    # <build>/shiboken2/doc/html/* ->
-    #   <setup>/PySide2/docs/shiboken2
-    copydir(
-        "{build_dir}/shiboken2/doc/html",
-        "{pyside_package_dir}/PySide2/docs/shiboken2",
-        force=False, vars=vars)
-
-    # <install>/lib/site-packages/shiboken2.pyd ->
-    #   <setup>/PySide2/shiboken2.pyd
-    shiboken_module_name = 'shiboken2.pyd'
-    shiboken_src_path = "{site_packages_dir}".format(**vars)
-    maybe_shiboken_names = [f for f in os.listdir(shiboken_src_path)
-                            if re.match(r'shiboken.*\.pyd', f)]
-    if maybe_shiboken_names:
-        shiboken_module_name = maybe_shiboken_names[0]
-    vars.update({'shiboken_module_name': shiboken_module_name})
-    copyfile(
-        "{site_packages_dir}/{shiboken_module_name}",
-        "{pyside_package_dir}/PySide2/{shiboken_module_name}",
-        vars=vars)
-    # @TODO: Fix this .pdb file not to overwrite release
-    # {shibokengenerator}.pdb file.
-    # Task-number: PYSIDE-615
-    copydir(
-        "{build_dir}/shiboken2/shibokenmodule",
-        "{pyside_package_dir}/PySide2",
-        filter=pdbs,
-        recursive=False, vars=vars)
-
-    # <install>/lib/site-packages/pyside2uic/* ->
-    #   <setup>/pyside2uic
-    copydir(
-        "{site_packages_dir}/pyside2uic",
-        "{pyside_package_dir}/pyside2uic",
-        force=False, vars=vars)
-    if sys.version_info[0] > 2:
-        rmtree("{pyside_package_dir}/pyside2uic/port_v2".format(**vars))
-    else:
-        rmtree("{pyside_package_dir}/pyside2uic/port_v3".format(**vars))
-
-    # <install>/bin/pyside2-uic -> PySide2/scripts/uic.py
-    makefile(
-        "{pyside_package_dir}/PySide2/scripts/__init__.py",
-        vars=vars)
-    copyfile(
-        "{install_dir}/bin/pyside2-uic",
-        "{pyside_package_dir}/PySide2/scripts/uic.py",
-        force=False, vars=vars)
-
-    # <install>/bin/*.exe,*.dll,*.pdb -> PySide2/
-    copydir(
-        "{install_dir}/bin/",
-        "{pyside_package_dir}/PySide2",
-        filter=["*.exe", "*.dll"],
-        recursive=False, vars=vars)
-    # @TODO: Fix this .pdb file not to overwrite release
-    # {shibokenmodule}.pdb file.
-    # Task-number: PYSIDE-615
-    copydir(
-        "{build_dir}/shiboken2/generator",
-        "{pyside_package_dir}/PySide2",
-        filter=pdbs,
-        recursive=False, vars=vars)
-
-    # <install>/lib/*.lib -> PySide2/
-    copydir(
-        "{install_dir}/lib/",
-        "{pyside_package_dir}/PySide2",
-        filter=["*.lib"],
-        recursive=False, vars=vars)
-
-    # <install>/share/PySide2/typesystems/* ->
-    #   <setup>/PySide2/typesystems
-    copydir(
-        "{install_dir}/share/PySide2/typesystems",
-        "{pyside_package_dir}/PySide2/typesystems",
-        vars=vars)
-
-    # <install>/include/* -> <setup>/PySide2/include
-    copydir(
-        "{install_dir}/include",
-        "{pyside_package_dir}/PySide2/include",
-        vars=vars)
-
-    # <source>/pyside2/PySide2/support/* ->
-    #   <setup>/PySide2/support/*
-    copydir(
-        "{build_dir}/pyside2/PySide2/support",
-        "{pyside_package_dir}/PySide2/support",
-        vars=vars)
-
-    if not OPTION_NOEXAMPLES:
-        # examples/* -> <setup>/PySide2/examples
-        copydir(os.path.join(self.script_dir, "examples"),
-                "{pyside_package_dir}/PySide2/examples",
-                force=False, vars=vars)
-        # Re-generate examples Qt resource files for Python 3
-        # compatibility
-        if sys.version_info[0] == 3:
-            examples_path = "{pyside_package_dir}/PySide2/examples".format(
-                **vars)
-            pyside_rcc_path = "{install_dir}/bin/pyside2-rcc".format(
-                **vars)
-            pyside_rcc_options = '-py3'
-            regenerate_qt_resources(examples_path, pyside_rcc_path,
-                pyside_rcc_options)
-
+def prepare_standalone_package_windows(self, vars):
     # <ssl_libs>/* -> <setup>/PySide2/openssl
     copydir("{ssl_libs_dir}", "{pyside_package_dir}/PySide2/openssl",
         filter=[
@@ -189,6 +63,7 @@ def prepare_packages_win32(self, vars):
         "lconvert.exe",
         "qtdiag.exe"
     ]
+
     # MSVC redistributable
     msvc_redist = [
         "concrt140.dll",
@@ -350,7 +225,140 @@ def prepare_packages_win32(self, vars):
         "{pyside_package_dir}/PySide2",
         vars=vars)
 
-    self.prepare_standalone_clang(is_win=True)
+
+def prepare_packages_win32(self, vars):
+    # For now, debug symbols will not be shipped into the package.
+    copy_pdbs = False
+    pdbs = []
+    if (self.debug or self.build_type == 'RelWithDebInfo') and copy_pdbs:
+        pdbs = ['*.pdb']
+    # <install>/lib/site-packages/PySide2/* -> <setup>/PySide2
+    copydir(
+        "{site_packages_dir}/PySide2",
+        "{pyside_package_dir}/PySide2",
+        vars=vars)
+    built_modules = self.get_built_pyside_config(vars)['built_modules']
+
+    # <build>/pyside2/PySide2/*.pdb -> <setup>/PySide2
+    copydir(
+        "{build_dir}/pyside2/PySide2",
+        "{pyside_package_dir}/PySide2",
+        filter=pdbs,
+        recursive=False, vars=vars)
+
+    # <build>/shiboken2/doc/html/* ->
+    #   <setup>/PySide2/docs/shiboken2
+    copydir(
+        "{build_dir}/shiboken2/doc/html",
+        "{pyside_package_dir}/PySide2/docs/shiboken2",
+        force=False, vars=vars)
+
+    # <install>/lib/site-packages/shiboken2.pyd ->
+    #   <setup>/PySide2/shiboken2.pyd
+    shiboken_module_name = 'shiboken2.pyd'
+    shiboken_src_path = "{site_packages_dir}".format(**vars)
+    maybe_shiboken_names = [f for f in os.listdir(shiboken_src_path)
+                            if re.match(r'shiboken.*\.pyd', f)]
+    if maybe_shiboken_names:
+        shiboken_module_name = maybe_shiboken_names[0]
+    vars.update({'shiboken_module_name': shiboken_module_name})
+    copyfile(
+        "{site_packages_dir}/{shiboken_module_name}",
+        "{pyside_package_dir}/PySide2/{shiboken_module_name}",
+        vars=vars)
+    # @TODO: Fix this .pdb file not to overwrite release
+    # {shibokengenerator}.pdb file.
+    # Task-number: PYSIDE-615
+    copydir(
+        "{build_dir}/shiboken2/shibokenmodule",
+        "{pyside_package_dir}/PySide2",
+        filter=pdbs,
+        recursive=False, vars=vars)
+
+    # <install>/lib/site-packages/pyside2uic/* ->
+    #   <setup>/pyside2uic
+    copydir(
+        "{site_packages_dir}/pyside2uic",
+        "{pyside_package_dir}/pyside2uic",
+        force=False, vars=vars)
+    if sys.version_info[0] > 2:
+        rmtree("{pyside_package_dir}/pyside2uic/port_v2".format(**vars))
+    else:
+        rmtree("{pyside_package_dir}/pyside2uic/port_v3".format(**vars))
+
+    # <install>/bin/pyside2-uic -> PySide2/scripts/uic.py
+    makefile(
+        "{pyside_package_dir}/PySide2/scripts/__init__.py",
+        vars=vars)
+    copyfile(
+        "{install_dir}/bin/pyside2-uic",
+        "{pyside_package_dir}/PySide2/scripts/uic.py",
+        force=False, vars=vars)
+
+    # <install>/bin/*.exe,*.dll,*.pdb -> PySide2/
+    copydir(
+        "{install_dir}/bin/",
+        "{pyside_package_dir}/PySide2",
+        filter=["*.exe", "*.dll"],
+        recursive=False, vars=vars)
+    # @TODO: Fix this .pdb file not to overwrite release
+    # {shibokenmodule}.pdb file.
+    # Task-number: PYSIDE-615
+    copydir(
+        "{build_dir}/shiboken2/generator",
+        "{pyside_package_dir}/PySide2",
+        filter=pdbs,
+        recursive=False, vars=vars)
+
+    # <install>/lib/*.lib -> PySide2/
+    copydir(
+        "{install_dir}/lib/",
+        "{pyside_package_dir}/PySide2",
+        filter=["*.lib"],
+        recursive=False, vars=vars)
+
+    # <install>/share/PySide2/typesystems/* ->
+    #   <setup>/PySide2/typesystems
+    copydir(
+        "{install_dir}/share/PySide2/typesystems",
+        "{pyside_package_dir}/PySide2/typesystems",
+        vars=vars)
+
+    # <install>/include/* -> <setup>/PySide2/include
+    copydir(
+        "{install_dir}/include",
+        "{pyside_package_dir}/PySide2/include",
+        vars=vars)
+
+    # <source>/pyside2/PySide2/support/* ->
+    #   <setup>/PySide2/support/*
+    copydir(
+        "{build_dir}/pyside2/PySide2/support",
+        "{pyside_package_dir}/PySide2/support",
+        vars=vars)
+
+    if not OPTION_NOEXAMPLES:
+        # examples/* -> <setup>/PySide2/examples
+        copydir(os.path.join(self.script_dir, "examples"),
+                "{pyside_package_dir}/PySide2/examples",
+                force=False, vars=vars)
+        # Re-generate examples Qt resource files for Python 3
+        # compatibility
+        if sys.version_info[0] == 3:
+            examples_path = "{pyside_package_dir}/PySide2/examples".format(
+                **vars)
+            pyside_rcc_path = "{install_dir}/bin/pyside2-rcc".format(
+                **vars)
+            pyside_rcc_options = '-py3'
+            regenerate_qt_resources(examples_path, pyside_rcc_path,
+                pyside_rcc_options)
+
+    # Copy Qt libs to package
+    if OPTION_STANDALONE:
+        vars['built_modules'] = built_modules
+        prepare_standalone_package_windows(self, vars)
+
+        self.prepare_standalone_clang(is_win=True)
 
     # pdb files for libshiboken and libpyside
     copydir(
