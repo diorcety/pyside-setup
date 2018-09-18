@@ -141,6 +141,8 @@ OPTION = {
     "QMAKE": option_value("qmake"),
     "QT_VERSION": option_value("qt"),
     "CMAKE": option_value("cmake"),
+    "CMAKE_PREFIX_PATH": option_value("cmake-prefix-path"),
+    "CMAKE_SYSTEM_IGNORE_PATH": option_value("cmake-system-ignore-path"),
     "OPENSSL": option_value("openssl"),
     "SHIBOKEN_CONFIG_DIR": option_value("shiboken-config-dir"),
     "ONLYPACKAGE": has_option("only-package"),

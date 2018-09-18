@@ -926,6 +926,8 @@ class PysideBuild(_build):
             "-DQt5Help_DIR={}".format(self.qtinfo.docs_dir),
             "-DCMAKE_BUILD_TYPE={}".format(self.build_type),
             "-DCMAKE_INSTALL_PREFIX={}".format(self.install_dir),
+            "-DCMAKE_PREFIX_PATH={}".format(OPTION["CMAKE_PREFIX_PATH"]),
+            "-DCMAKE_SYSTEM_IGNORE_PATH={}".format(OPTION["CMAKE_SYSTEM_IGNORE_PATH"]),
             module_src_dir
         ]
         cmake_cmd.append("-DPYTHON_EXECUTABLE={}".format(self.py_executable))
