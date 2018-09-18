@@ -16,8 +16,8 @@ option(BUILD_TESTS "Build tests." TRUE)
 option(USE_PYTHON_VERSION "Use specific python version to build shiboken2." "")
 
 if (USE_PYTHON_VERSION)
-    find_package(PythonInterp ${USE_PYTHON_VERSION} REQUIRED)
-    find_package(PythonLibs ${USE_PYTHON_VERSION} REQUIRED)
+    find_package(PythonInterp ${USE_PYTHON_VERSION})
+    find_package(PythonLibs ${USE_PYTHON_VERSION})
 else()
     find_package(PythonInterp 2.7)
     find_package(PythonLibs 2.7)
@@ -160,7 +160,11 @@ set(shiboken2_library_so_version "${shiboken_MAJOR_VERSION}.${shiboken_MINOR_VER
 
 ## For debugging the PYTHON* variables
 message("PYTHONLIBS_FOUND: " ${PYTHONLIBS_FOUND})
-message("PYTHON_LIBRARIES: " ${PYTHON_LIBRARIES})
+if(PYTHONLIBS_FOUND)
+    message("PYTHON_LIBRARIES: " ${PYTHON_LIBRARIES})
+else()
+    set(PYTHON_LIBRARIES )
+endif()
 message("PYTHON_INCLUDE_DIRS: " ${PYTHON_INCLUDE_DIRS})
 message("PYTHON_DEBUG_LIBRARIES: " ${PYTHON_DEBUG_LIBRARIES})
 message("PYTHONINTERP_FOUND: " ${PYTHONINTERP_FOUND})

@@ -642,14 +642,11 @@ class PysideBuild(_build):
                             libs_tried.append(py_library)
 
             if not python_library_found:
-                raise DistutilsSetupError(
-                    "Failed to locate the Python library with {}".format(
-                        ", ".join(libs_tried)))
-
-            if py_library.endswith('.a'):
-                # Python was compiled as a static library
-                log.error("Failed to locate a dynamic Python library, "
-                    "using {}".format(py_library))
+                py_library = None
+                if not sys.platform.startswith('linux'):
+                    raise DistutilsSetupError(
+                        "Failed to locate the Python library with {}".format(
+                            ", ".join(libs_tried)))
 
         self.qtinfo = qtinfo
         qt_dir = os.path.dirname(OPTION_QMAKE)
@@ -954,7 +951,8 @@ class PysideBuild(_build):
         ]
         cmake_cmd.append("-DPYTHON_EXECUTABLE={}".format(self.py_executable))
         cmake_cmd.append("-DPYTHON_INCLUDE_DIR={}".format(self.py_include_dir))
-        cmake_cmd.append("-DPYTHON_LIBRARY={}".format(self.py_library))
+        if self.py_library is not None:
+            cmake_cmd.append("-DPYTHON_LIBRARY={}".format(self.py_library))
         if OPTION_MODULE_SUBSET:
             module_sub_set = ''
             for m in OPTION_MODULE_SUBSET.split(','):
