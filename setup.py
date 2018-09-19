@@ -230,6 +230,10 @@ this_file = os.path.abspath(this_file)
 if os.path.dirname(this_file):
     os.chdir(os.path.dirname(this_file))
 
+exe_ext = ''
+if sys.platform == "win32":
+    exe_ext = '.exe'
+
 from build_scripts.main import get_package_version, get_setuptools_extension_modules
 from build_scripts.main import pyside_package_dir_name
 from build_scripts.main import cmd_class_dict
@@ -296,6 +300,7 @@ setup(
         ]
     },
     cmdclass = cmd_class_dict,
+    data_files = [("bin", ['pyside_package/PySide2/pyside2-rcc' + exe_ext, 'pyside_package/PySide2/pyside2-lupdate' + exe_ext, 'pyside_package/PySide2/shiboken2' + exe_ext])],
     # Add a bogus extension module (will never be built here since we
     # are overriding the build command to do it using cmake) so things
     # like bdist_egg will know that there are extension modules and
