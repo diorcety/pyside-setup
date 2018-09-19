@@ -162,7 +162,7 @@ qt_src_dir = ''
 
 # This is used automatically by distutils.command.install object, to
 # specify final installation location.
-OPTION_FINAL_INSTALL_PREFIX = option_value("prefix")
+OPTION_FINAL_INSTALL_PREFIX = option_value("prefix", False)
 
 
 if OPTION_QT_VERSION is None:
