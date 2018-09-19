@@ -79,18 +79,20 @@ def has_option(name):
     return False
 
 
-def option_value(name):
+def option_value(name, remove=True):
     for index, option in enumerate(sys.argv):
         if option == '--' + name:
             if index+1 >= len(sys.argv):
                 raise DistutilsOptionError("The option {} requires a "
                     "value".format(option))
             value = sys.argv[index+1]
-            sys.argv[index:index+2] = []
+            if remove:
+                sys.argv[index:index+2] = []
             return value
         if option.startswith('--' + name + '='):
             value = option[len(name)+3:]
-            sys.argv[index:index+1] = []
+            if remove:
+                sys.argv[index:index+1] = []
             return value
     env_val = os.getenv(name.upper().replace('-', '_'))
     return env_val
