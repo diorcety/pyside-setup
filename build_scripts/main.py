@@ -525,27 +525,12 @@ class PysideBuild(_build):
         if not py_prefix or not os.path.exists(py_prefix):
             py_prefix = sys.prefix
         self.py_prefix = py_prefix
-        if sys.platform == "win32":
-            py_scripts_dir = os.path.join(py_prefix, "Scripts")
-        else:
-            py_scripts_dir = os.path.join(py_prefix, "bin")
+        py_scripts_dir = os.path.join(py_prefix, "bin")
         self.py_scripts_dir = py_scripts_dir
         if py_libdir is None or not os.path.exists(py_libdir):
-            if sys.platform == "win32":
-                # For virtual environments on Windows, the py_prefix will contain a path pointing
-                # to it, instead of the system Python installation path.
-                # Since INCLUDEPY contains a path to the system location, we use the same base
-                # directory to define the py_libdir variable.
-                py_libdir = os.path.join(os.path.dirname(py_include_dir), "libs")
-                if not os.path.isdir(py_libdir):
-                    raise DistutilsSetupError("Failed to locate the 'libs' directory")
-            else:
-                py_libdir = os.path.join(py_prefix, "lib")
+            py_libdir = os.path.join(py_prefix, "lib")
         if py_include_dir is None or not os.path.exists(py_include_dir):
-            if sys.platform == "win32":
-                py_include_dir = os.path.join(py_prefix, "include")
-            else:
-                py_include_dir = os.path.join(py_prefix, "include/python{}".format(py_version))
+            py_include_dir = os.path.join(py_prefix, "include/python{}".format(py_version))
         dbg_postfix = ""
         if build_type == "Debug":
             dbg_postfix = "_d"
