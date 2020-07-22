@@ -539,21 +539,12 @@ class PysideBuild(_build):
         py_prefix = get_config_var("prefix")
         if not py_prefix or not os.path.exists(py_prefix):
             py_prefix = sys.prefix
-        if sys.platform == "win32":
-            py_scripts_dir = os.path.join(py_prefix, "Scripts")
-        else:
-            py_scripts_dir = os.path.join(py_prefix, "bin")
+        py_scripts_dir = os.path.join(py_prefix, "bin")
         if py_libdir is None or not os.path.exists(py_libdir):
-            if sys.platform == "win32":
-                py_libdir = os.path.join(py_prefix, "libs")
-            else:
-                py_libdir = os.path.join(py_prefix, "lib")
+            py_libdir = os.path.join(py_prefix, "lib")
         if py_include_dir is None or not os.path.exists(py_include_dir):
-            if sys.platform == "win32":
-                py_include_dir = os.path.join(py_prefix, "include")
-            else:
-                py_include_dir = os.path.join(py_prefix,
-                    "include/python{}".format(py_version))
+            py_include_dir = os.path.join(py_prefix,
+                "include/python{}".format(py_version))
         dbg_postfix = ""
         if build_type == "Debug":
             dbg_postfix = "_d"
