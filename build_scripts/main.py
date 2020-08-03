@@ -983,8 +983,6 @@ class PysideBuild(_build):
             else:
                 if OPTION["STANDALONE"]:
                     pyside_qt_conf_prefix = '"Qt"'
-                if sys.platform == 'win32':
-                    pyside_qt_conf_prefix = '"."'
             cmake_cmd.append("-DPYSIDE_QT_CONF_PREFIX={}".format(
                 pyside_qt_conf_prefix))
 
