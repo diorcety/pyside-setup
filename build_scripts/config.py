@@ -215,7 +215,6 @@ class Config(object):
                 'console_scripts': [
                     'pyside2-uic = {}.scripts.pyside_tool:uic'.format(self.package_name()),
                     'pyside2-rcc = {}.scripts.pyside_tool:rcc'.format(self.package_name()),
-                    'pyside2-designer= {}.scripts.pyside_tool:designer'.format(self.package_name()),
                     'pyside2-lupdate = {}.scripts.pyside_tool:main'.format(self.package_name()),
                 ]
             }
