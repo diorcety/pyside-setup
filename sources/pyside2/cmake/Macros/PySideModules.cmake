@@ -18,6 +18,11 @@ macro(unmake_path varname)
    string(REPLACE "${PATH_SEP}" ";" ${varname} "${ARGN}")
 endmacro()
 
+if (UNIX)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH true)
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
+endif()
+
 # Sample usage
 # create_pyside_module(NAME QtGui
 #                      INCLUDE_DIRS QtGui_include_dirs

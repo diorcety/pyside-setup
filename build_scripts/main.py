@@ -1240,59 +1240,7 @@ class PysideBuild(_build):
                                "from {} to {}. ".format(clang_lib_path, destination_dir))
 
     def update_rpath(self, package_path, executables):
-        if sys.platform.startswith('linux'):
-            pyside_libs = [lib for lib in os.listdir(
-                package_path) if filter_match(lib, ["*.so", "*.so.*"])]
-
-            def rpath_cmd(srcpath):
-                final_rpath = ''
-                # Command line rpath option takes precedence over
-                # automatically added one.
-                if OPTION["RPATH_VALUES"]:
-                    final_rpath = OPTION["RPATH_VALUES"]
-                else:
-                    # Add rpath values pointing to $ORIGIN and the
-                    # installed qt lib directory.
-                    final_rpath = self.qtinfo.libs_dir
-                    if OPTION["STANDALONE"]:
-                        final_rpath = "$ORIGIN/Qt/lib"
-                override = OPTION["STANDALONE"]
-                linux_fix_rpaths_for_library(self._patchelf_path, srcpath, final_rpath,
-                                             override=override)
-
-        elif sys.platform == 'darwin':
-            pyside_libs = [lib for lib in os.listdir(
-                package_path) if filter_match(lib, ["*.so", "*.dylib"])]
-
-            def rpath_cmd(srcpath):
-                final_rpath = ''
-                # Command line rpath option takes precedence over
-                # automatically added one.
-                if OPTION["RPATH_VALUES"]:
-                    final_rpath = OPTION["RPATH_VALUES"]
-                else:
-                    if OPTION["STANDALONE"]:
-                        final_rpath = "@loader_path/Qt/lib"
-                    else:
-                        final_rpath = self.qtinfo.libs_dir
-                macos_fix_rpaths_for_library(srcpath, final_rpath)
-
-        else:
-            raise RuntimeError('Not configured for platform {}'.format(sys.platform))
-
-        pyside_libs.extend(executables)
-
-        # Update rpath in PySide2 libs
-        for srcname in pyside_libs:
-            srcpath = os.path.join(package_path, srcname)
-            if os.path.isdir(srcpath) or os.path.islink(srcpath):
-                continue
-            if not os.path.exists(srcpath):
-                continue
-            rpath_cmd(srcpath)
-            log.info("Patched rpath to '$ORIGIN/' (Linux) or "
-                     "updated rpath (OS/X) in {}.".format(srcpath))
-
+        pass
 
 cmd_class_dict = {
     'build': PysideBuild,

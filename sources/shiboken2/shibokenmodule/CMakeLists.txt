@@ -1,5 +1,10 @@
 project(shibokenmodule)
 
+if (UNIX)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH true)
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
+endif()
+
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/shibokenmodule.txt.in"
                "${CMAKE_CURRENT_BINARY_DIR}/shibokenmodule.txt" @ONLY)
 
